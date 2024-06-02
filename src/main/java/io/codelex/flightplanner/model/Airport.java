@@ -5,7 +5,6 @@ public class Airport {
     private String city;
     private String airport;
 
-    // Constructor
     public Airport(String country, String city, String airport) {
         this.country = country;
         this.city = city;
@@ -16,7 +15,6 @@ public class Airport {
         this.airport = airport;
     }
 
-    // Getters and Setters
     public String getCountry() {
         return country;
     }

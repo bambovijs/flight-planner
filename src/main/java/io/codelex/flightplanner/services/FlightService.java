@@ -2,12 +2,12 @@ package io.codelex.flightplanner.services;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
+import io.codelex.flightplanner.controllers.SearchFlightsRequest;
+import io.codelex.flightplanner.model.Airport;
+import io.codelex.flightplanner.model.PageResult;
 import org.springframework.stereotype.Service;
-
 import io.codelex.flightplanner.model.Flight;
 import io.codelex.flightplanner.repositories.FlightRepository;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class FlightService {
@@ -35,5 +35,14 @@ public class FlightService {
 
     public void clearFlights() {
         flightRepository.clearFlights();
+    }
+
+    public List<Airport> searchAirports(String search) {
+        return flightRepository.searchAirports(search);
+    }
+
+    public PageResult<Flight> searchFlights(SearchFlightsRequest searchFlightsRequest) {
+        PageResult<Flight> flights = flightRepository.searchFlights(searchFlightsRequest);
+        return flights;
     }
 }

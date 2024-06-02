@@ -1,9 +1,9 @@
 package io.codelex.flightplanner.controllers;
 
 import io.codelex.flightplanner.model.Airport;
+import io.codelex.flightplanner.model.PageResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import io.codelex.flightplanner.model.Flight;
 import io.codelex.flightplanner.services.FlightService;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,42 +21,78 @@ public class FlightController {
         this.flightService = flightService;
     }
 
-    @GetMapping("/api/flights/{id}")
+    @GetMapping("/admin-api/flights/{id}")
     public Flight getFlight(@PathVariable long id) {
-//        return flightService.getFlightById(id);
         Flight flight = flightService.getFlightById(id);
 
-        if(flight == null){
+        if (flight == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         return flight;
     }
 
+    @GetMapping("/api/flights/{id}")
+    public SearchFlightsResponse findFlight(@PathVariable long id) {
+        Flight flight = flightService.getFlightById(id);
+
+        if (flight == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        return new SearchFlightsResponse(flight);
+    }
+
     @PutMapping("/admin-api/flights")
     @ResponseStatus(HttpStatus.CREATED)
     public FlightResponse addFlight(@RequestBody FlightRequest flightRequest) {
-        validateFlightRequest(flightRequest);
+        synchronized (flightService) {
+            validateFlightRequest(flightRequest);
 
-        if (isDuplicateFlight(flightRequest)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            if (isDuplicateFlight(flightRequest)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT);
+            }
+
+            Flight flight = new Flight(flightRequest.getFrom(), flightRequest.getTo(), flightRequest.getCarrier(),
+                    flightRequest.getDepartureTime(), flightRequest.getArrivalTime());
+            flightService.addFlight(flight);
+
+            return new FlightResponse(flight);
         }
-
-        Flight flight = new Flight(flightRequest.getFrom(), flightRequest.getTo(), flightRequest.getCarrier(),
-                flightRequest.getDepartureTime(), flightRequest.getArrivalTime());
-        flightService.addFlight(flight);
-
-        return new FlightResponse(flight);
     }
 
     @DeleteMapping("/admin-api/flights/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteFlight(@PathVariable long id) {
-
-        boolean deleted = flightService.deleteFlight(id);
-        if (!deleted) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        synchronized (flightService) {
+            flightService.deleteFlight(id);
         }
+    }
+
+    @PostMapping("/api/flights/search")
+    @ResponseStatus(HttpStatus.OK)
+    public PageResult<Flight> searchFlights(@RequestBody SearchFlightsRequest searchFlightsRequest) {
+        validateSearchRequest(searchFlightsRequest);
+
+        return flightService.searchFlights(searchFlightsRequest);
+    }
+
+    protected void validateSearchRequest(SearchFlightsRequest request) {
+        if (request.getFrom() == null || request.getTo() == null || request.getDepartureDate() == null ||
+                request.getFrom().toString().trim().isEmpty() || request.getTo().toString().trim().isEmpty() || request.getDepartureDate().trim().isEmpty()) {
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid search parameters");
+        }
+        else if(request.getTo().getAirport().equals(request.getFrom().getAirport())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid search parameters");
+        }
+    }
+
+
+    @GetMapping("/api/airports")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Airport> searchAirports(@RequestParam() String search) {
+        return flightService.searchAirports(search);
     }
 
     private void validateFlightRequest(FlightRequest flightRequest) {
@@ -82,7 +118,8 @@ public class FlightController {
 
     private void validateAirport(Airport airport) {
         if (airport.getCountry() == null || airport.getCity() == null || airport.getAirport() == null ||
-                airport.getCountry().trim().isEmpty() || airport.getCity().trim().isEmpty() || airport.getAirport().trim().isEmpty()) {
+                airport.getCountry().trim().isEmpty() || airport.getCity().trim().isEmpty()
+                || airport.getAirport().trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
@@ -93,16 +130,15 @@ public class FlightController {
 
     private boolean isDuplicateFlight(FlightRequest flightRequest) {
         return flightService.getAllFlights().stream()
-                .anyMatch(flight ->
-                         flight.getDeparture().getAirport().equals(flightRequest.getFrom().getAirport()) &&
-                         flight.getDestination().getAirport().equals(flightRequest.getTo().getAirport()) &&
-                         flight.getCarrier().equals(flightRequest.getCarrier()) &&
-                         convertLocalDateTimeToString(flight.getDepartureTime()).equals(flightRequest.getDepartureTime())
-                         &&
-                         convertLocalDateTimeToString(flight.getArrivalTime()).equals(flightRequest.getArrivalTime()));
+                .anyMatch(flight -> flight.getDeparture().getAirport().equals(flightRequest.getFrom().getAirport()) &&
+                        flight.getDestination().getAirport().equals(flightRequest.getTo().getAirport()) &&
+                        flight.getCarrier().equals(flightRequest.getCarrier()) &&
+                        convertLocalDateTimeToString(flight.getDepartureTime()).equals(flightRequest.getDepartureTime())
+                        &&
+                        convertLocalDateTimeToString(flight.getArrivalTime()).equals(flightRequest.getArrivalTime()));
     }
 
-    private String convertLocalDateTimeToString(LocalDateTime localDateTime) {
+    public String convertLocalDateTimeToString(LocalDateTime localDateTime) {
         return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
 

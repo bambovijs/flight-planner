@@ -2,7 +2,6 @@ package io.codelex.flightplanner.model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-// import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -34,7 +33,6 @@ public class Flight {
         return LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
