@@ -16,7 +16,7 @@ public interface FlightRepository {
 
     void clearFlights();
 
-    boolean deleteFlight(long id);
+    void deleteFlight(long id);
 
     List<Airport> searchAirports(String search);
 

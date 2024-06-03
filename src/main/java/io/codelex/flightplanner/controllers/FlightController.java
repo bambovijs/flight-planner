@@ -29,7 +29,7 @@ public class FlightController {
 
     @PutMapping("/admin-api/flights")
     @ResponseStatus(HttpStatus.CREATED)
-    public FlightResponse addFlight(@RequestBody FlightRequest flightRequest) {
+    public Flight addFlight(@RequestBody FlightRequest flightRequest) {
         return flightService.addFlight(flightRequest);
     }
 

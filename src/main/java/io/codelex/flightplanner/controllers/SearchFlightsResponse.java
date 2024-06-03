@@ -17,9 +17,9 @@ public class SearchFlightsResponse {
         this.arrivalTime = flight.getArrivalTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         this.carrier = flight.getCarrier();
         this.departureTime = flight.getDepartureTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        this.from = flight.getDeparture();
+        this.from = flight.getFrom();
         this.id = flight.getId();
-        this.to = flight.getDestination();
+        this.to = flight.getTo();
     }
 
     public Long getId() {

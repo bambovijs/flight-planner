@@ -10,8 +10,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 public class Flight {
     private Long id;
-    private Airport departure;
-    private Airport destination;
+    private Airport from;
+    private Airport to;
     private String carrier;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime departureTime;
@@ -20,10 +20,10 @@ public class Flight {
 
     private static final AtomicLong idGenerator = new AtomicLong(0);
 
-    public Flight(Airport departure, Airport destination, String carrier, String departureTime, String arrivalTime) {
+    public Flight(Airport from, Airport to, String carrier, String departureTime, String arrivalTime) {
         this.id = idGenerator.incrementAndGet();
-        this.departure = departure;
-        this.destination = destination;
+        this.from = from;
+        this.to = to;
         this.carrier = carrier;
         this.departureTime = convertStringToLocalDateTime(departureTime);
         this.arrivalTime = convertStringToLocalDateTime(arrivalTime);
@@ -41,28 +41,28 @@ public class Flight {
         this.id = id;
     }
 
-    public Airport getDeparture() {
-        return departure;
+    public Airport getFrom() {
+        return from;
     }
 
-    public void setDeparture(Airport departure) {
-        if (departure == null || isInvalidAirport(departure)) {
+    public void setFrom(Airport from) {
+        if (from == null || isInvalidAirport(from)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        this.departure = departure;
+        this.from = from;
     }
 
-    public Airport getDestination() {
-        return destination;
+    public Airport getTo() {
+        return to;
     }
 
-    public void setDestination(Airport destination) {
+    public void setTo(Airport destination) {
         if (destination == null || isInvalidAirport(destination)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        this.destination = destination;
+        this.to = destination;
     }
 
     public String getCarrier() {

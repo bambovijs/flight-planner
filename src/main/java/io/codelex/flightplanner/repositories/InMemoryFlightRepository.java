@@ -4,9 +4,7 @@ import io.codelex.flightplanner.controllers.SearchFlightsRequest;
 import io.codelex.flightplanner.model.Airport;
 import io.codelex.flightplanner.model.Flight;
 import io.codelex.flightplanner.model.PageResult;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +42,8 @@ public class InMemoryFlightRepository implements FlightRepository {
     }
 
     @Override
-    public boolean deleteFlight(long id) {
+    public void deleteFlight(long id) {
         flights.removeIf(flight -> flight.getId() == id);
-        return true;
     }
 
     @Override
@@ -54,15 +51,15 @@ public class InMemoryFlightRepository implements FlightRepository {
         String lowerCaseSearch = search.trim().toLowerCase();
         List<Airport> airports = new ArrayList<>();
         for (Flight flight : flights) {
-            if (flight.getDeparture().getAirport().toLowerCase().contains(lowerCaseSearch) ||
-                    flight.getDeparture().getCity().toLowerCase().contains(lowerCaseSearch) ||
-                    flight.getDeparture().getCountry().toLowerCase().contains(lowerCaseSearch)) {
-                airports.add(flight.getDeparture());
+            if (flight.getFrom().getAirport().toLowerCase().contains(lowerCaseSearch) ||
+                    flight.getFrom().getCity().toLowerCase().contains(lowerCaseSearch) ||
+                    flight.getFrom().getCountry().toLowerCase().contains(lowerCaseSearch)) {
+                airports.add(flight.getFrom());
             }
-            if (flight.getDestination().getAirport().toLowerCase().contains(lowerCaseSearch) ||
-                    flight.getDestination().getCity().toLowerCase().contains(lowerCaseSearch) ||
-                    flight.getDestination().getCountry().toLowerCase().contains(lowerCaseSearch)) {
-                airports.add(flight.getDestination());
+            if (flight.getTo().getAirport().toLowerCase().contains(lowerCaseSearch) ||
+                    flight.getTo().getCity().toLowerCase().contains(lowerCaseSearch) ||
+                    flight.getTo().getCountry().toLowerCase().contains(lowerCaseSearch)) {
+                airports.add(flight.getTo());
             }
         }
         return airports.stream().distinct().collect(Collectors.toList());
@@ -71,7 +68,7 @@ public class InMemoryFlightRepository implements FlightRepository {
     @Override
     public List<Airport> getAllAirports() {
         return flights.stream()
-                .flatMap(flight -> Stream.of(flight.getDeparture(), flight.getDestination()))
+                .flatMap(flight -> Stream.of(flight.getFrom(), flight.getTo()))
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -79,8 +76,8 @@ public class InMemoryFlightRepository implements FlightRepository {
     @Override
     public PageResult<Flight> searchFlights(SearchFlightsRequest searchFlightsRequest) {
         List<Flight> matchingFlights = flights.stream()
-                .filter(flight -> flight.getDeparture().getAirport().equalsIgnoreCase(searchFlightsRequest.getFrom().getAirport())
-                        && flight.getDestination().getAirport().equalsIgnoreCase(searchFlightsRequest.getTo().getAirport())
+                .filter(flight -> flight.getFrom().getAirport().equalsIgnoreCase(searchFlightsRequest.getFrom().getAirport())
+                        && flight.getTo().getAirport().equalsIgnoreCase(searchFlightsRequest.getTo().getAirport())
                         && flight.getDepartureTime().toString().startsWith(searchFlightsRequest.getDepartureDate()))
                 .collect(Collectors.toList());
 

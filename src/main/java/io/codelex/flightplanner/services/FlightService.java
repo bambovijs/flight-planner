@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import io.codelex.flightplanner.controllers.FlightRequest;
-import io.codelex.flightplanner.controllers.FlightResponse;
 import io.codelex.flightplanner.controllers.SearchFlightsRequest;
 import io.codelex.flightplanner.model.Airport;
 import io.codelex.flightplanner.model.PageResult;
@@ -23,11 +22,11 @@ public class FlightService {
         this.flightRepository = flightRepository;
     }
 
-    public void addFlight(Flight flight) {
-        flightRepository.addFlight(flight);
-    }
+//    public void addFlight(Flight flight) {
+//        flightRepository.addFlight(flight);
+//    }
 
-    public synchronized FlightResponse addFlight(FlightRequest flightRequest){
+    public synchronized Flight addFlight(FlightRequest flightRequest){
         validateFlightRequest(flightRequest);
 
         if (isDuplicateFlight(flightRequest)) {
@@ -37,8 +36,9 @@ public class FlightService {
         Flight flight = new Flight(flightRequest.getFrom(), flightRequest.getTo(), flightRequest.getCarrier(),
                 flightRequest.getDepartureTime(), flightRequest.getArrivalTime());
         flightRepository.addFlight(flight);
+        System.out.println("Pievienots!");
 
-        return new FlightResponse(flight);
+        return flight;
     }
     private void validateFlightRequest(FlightRequest flightRequest) {
         if (flightRequest.getFrom() == null || flightRequest.getTo() == null ||
@@ -63,8 +63,8 @@ public class FlightService {
 
     private boolean isDuplicateFlight(FlightRequest flightRequest) {
         return flightRepository.getAllFlights().stream()
-                .anyMatch(flight -> flight.getDeparture().getAirport().equals(flightRequest.getFrom().getAirport()) &&
-                        flight.getDestination().getAirport().equals(flightRequest.getTo().getAirport()) &&
+                .anyMatch(flight -> flight.getFrom().getAirport().equals(flightRequest.getFrom().getAirport()) &&
+                        flight.getTo().getAirport().equals(flightRequest.getTo().getAirport()) &&
                         flight.getCarrier().equals(flightRequest.getCarrier()) &&
                         convertLocalDateTimeToString(flight.getDepartureTime()).equals(flightRequest.getDepartureTime())
                         &&
@@ -91,8 +91,8 @@ public class FlightService {
         return flightRepository.getAllFlights();
     }
 
-    public synchronized boolean deleteFlight(long id) {
-        return flightRepository.deleteFlight(id);
+    public synchronized void deleteFlight(long id) {
+        flightRepository.deleteFlight(id);
     }
 
     public Flight getFlightById(long id) {
