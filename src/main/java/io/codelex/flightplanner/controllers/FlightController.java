@@ -23,18 +23,17 @@ public class FlightController {
     }
 
     @GetMapping("/api/flights/{id}")
-    public SearchFlightsResponse findFlight(@PathVariable long id) {
-        return new SearchFlightsResponse(flightService.getFlightById(id));
+    public Flight findFlight(@PathVariable long id) {
+        return flightService.getFlightById(id);
     }
 
     @PutMapping("/admin-api/flights")
     @ResponseStatus(HttpStatus.CREATED)
-    public Flight addFlight(@RequestBody FlightRequest flightRequest) {
+    public Flight addFlight(@RequestBody AddFlightRequest flightRequest) {
         return flightService.addFlight(flightRequest);
     }
 
     @DeleteMapping("/admin-api/flights/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public void deleteFlight(@PathVariable long id) {
         flightService.deleteFlight(id);
     }
@@ -49,11 +48,6 @@ public class FlightController {
     @ResponseStatus(HttpStatus.OK)
     public List<Airport> searchAirports(@RequestParam() String search) {
         return flightService.searchAirports(search);
-    }
-
-    @GetMapping
-    public List<Flight> getAllFlights() {
-        return flightService.getAllFlights();
     }
 
     @PostMapping("/testing-api/clear")

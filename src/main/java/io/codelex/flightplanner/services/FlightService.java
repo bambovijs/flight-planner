@@ -1,10 +1,7 @@
 package io.codelex.flightplanner.services;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import io.codelex.flightplanner.controllers.FlightRequest;
+import io.codelex.flightplanner.controllers.AddFlightRequest;
 import io.codelex.flightplanner.controllers.SearchFlightsRequest;
 import io.codelex.flightplanner.model.Airport;
 import io.codelex.flightplanner.model.PageResult;
@@ -22,11 +19,7 @@ public class FlightService {
         this.flightRepository = flightRepository;
     }
 
-//    public void addFlight(Flight flight) {
-//        flightRepository.addFlight(flight);
-//    }
-
-    public synchronized Flight addFlight(FlightRequest flightRequest){
+    public synchronized Flight addFlight(AddFlightRequest flightRequest){
         validateFlightRequest(flightRequest);
 
         if (isDuplicateFlight(flightRequest)) {
@@ -36,11 +29,11 @@ public class FlightService {
         Flight flight = new Flight(flightRequest.getFrom(), flightRequest.getTo(), flightRequest.getCarrier(),
                 flightRequest.getDepartureTime(), flightRequest.getArrivalTime());
         flightRepository.addFlight(flight);
-        System.out.println("Pievienots!");
 
         return flight;
     }
-    private void validateFlightRequest(FlightRequest flightRequest) {
+
+    private void validateFlightRequest(AddFlightRequest flightRequest) {
         if (flightRequest.getFrom() == null || flightRequest.getTo() == null ||
                 flightRequest.getCarrier() == null || flightRequest.getCarrier().trim().isEmpty() ||
                 flightRequest.getDepartureTime() == null || flightRequest.getArrivalTime() == null) {
@@ -54,30 +47,23 @@ public class FlightService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        LocalDateTime departureTime = Flight.convertStringToLocalDateTime(flightRequest.getDepartureTime());
-        LocalDateTime arrivalTime = Flight.convertStringToLocalDateTime(flightRequest.getArrivalTime());
-        if (departureTime.isAfter(arrivalTime) || departureTime.isEqual(arrivalTime)) {
+        if (flightRequest.getDepartureTime().isAfter(flightRequest.getArrivalTime()) || flightRequest.getDepartureTime().isEqual(flightRequest.getArrivalTime())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
 
-    private boolean isDuplicateFlight(FlightRequest flightRequest) {
+    private boolean isDuplicateFlight(AddFlightRequest flightRequest) {
         return flightRepository.getAllFlights().stream()
                 .anyMatch(flight -> flight.getFrom().getAirport().equals(flightRequest.getFrom().getAirport()) &&
                         flight.getTo().getAirport().equals(flightRequest.getTo().getAirport()) &&
                         flight.getCarrier().equals(flightRequest.getCarrier()) &&
-                        convertLocalDateTimeToString(flight.getDepartureTime()).equals(flightRequest.getDepartureTime())
-                        &&
-                        convertLocalDateTimeToString(flight.getArrivalTime()).equals(flightRequest.getArrivalTime()));
-    }
-
-    private String convertLocalDateTimeToString(LocalDateTime localDateTime) {
-        return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                        flight.getDepartureTime().equals(flightRequest.getDepartureTime()) &&
+                        flight.getArrivalTime().equals(flightRequest.getArrivalTime()));
     }
 
     private void validateAirport(Airport airport) {
         if (airport.getCountry() == null || airport.getCity() == null || airport.getAirport() == null ||
-                airport.getCountry().trim().isEmpty() || airport.getCity().trim().isEmpty()
+                airport.getCountry().isBlank() || airport.getCity().isBlank()
                 || airport.getAirport().trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
@@ -87,9 +73,9 @@ public class FlightService {
         return from.getAirport().trim().equalsIgnoreCase(to.getAirport().trim());
     }
 
-    public List<Flight> getAllFlights() {
-        return flightRepository.getAllFlights();
-    }
+//    public List<Flight> getAllFlights() {
+//        return flightRepository.getAllFlights();
+//    }
 
     public synchronized void deleteFlight(long id) {
         flightRepository.deleteFlight(id);
@@ -115,17 +101,13 @@ public class FlightService {
 
     public PageResult<Flight> searchFlights(SearchFlightsRequest searchFlightsRequest) {
         validateSearchRequest(searchFlightsRequest);
-        PageResult<Flight> flights = flightRepository.searchFlights(searchFlightsRequest);
-        return flights;
+        return flightRepository.searchFlights(searchFlightsRequest);
     }
 
     protected void validateSearchRequest(SearchFlightsRequest request) {
         if (request.getFrom() == null || request.getTo() == null || request.getDepartureDate() == null ||
-                request.getFrom().toString().trim().isEmpty() || request.getTo().toString().trim().isEmpty() || request.getDepartureDate().trim().isEmpty()) {
+                request.getFrom().toString().isBlank()|| request.getTo().toString().isBlank()|| request.getDepartureDate().isBlank() || request.getTo().getAirport().equals(request.getFrom().getAirport())) {
 
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid search parameters");
-        }
-        else if(request.getTo().getAirport().equals(request.getFrom().getAirport())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid search parameters");
         }
     }

@@ -1,7 +1,6 @@
 package io.codelex.flightplanner.model;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -20,17 +19,13 @@ public class Flight {
 
     private static final AtomicLong idGenerator = new AtomicLong(0);
 
-    public Flight(Airport from, Airport to, String carrier, String departureTime, String arrivalTime) {
+    public Flight(Airport from, Airport to, String carrier, LocalDateTime departureTime, LocalDateTime arrivalTime) {
         this.id = idGenerator.incrementAndGet();
         this.from = from;
         this.to = to;
         this.carrier = carrier;
-        this.departureTime = convertStringToLocalDateTime(departureTime);
-        this.arrivalTime = convertStringToLocalDateTime(arrivalTime);
-    }
-
-    public static LocalDateTime convertStringToLocalDateTime(String dateTimeString) {
-        return LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
     }
 
     public Long getId() {
@@ -70,7 +65,7 @@ public class Flight {
     }
 
     public void setCarrier(String carrier) {
-        if (carrier == null || carrier.trim().isEmpty()) {
+        if (carrier == null || carrier.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
@@ -102,6 +97,6 @@ public class Flight {
 
     private boolean isInvalidAirport(Airport airport) {
         return airport.getCountry() == null || airport.getCity() == null || airport.getAirport() == null ||
-                airport.getCountry().trim().isEmpty() || airport.getCity().trim().isEmpty() || airport.getAirport().trim().isEmpty();
+                airport.getCountry().isBlank()|| airport.getCity().isBlank() || airport.getAirport().isBlank();
     }
 }
