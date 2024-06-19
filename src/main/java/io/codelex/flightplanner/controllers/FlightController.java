@@ -2,10 +2,12 @@ package io.codelex.flightplanner.controllers;
 
 import io.codelex.flightplanner.model.Airport;
 import io.codelex.flightplanner.model.PageResult;
+import io.codelex.flightplanner.services.FlightService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import io.codelex.flightplanner.model.Flight;
-import io.codelex.flightplanner.services.FlightService;
+import io.codelex.flightplanner.services.InMemoryFlightService;
+
 import java.util.List;
 
 @RestController
@@ -22,11 +24,6 @@ public class FlightController {
         return flightService.getFlightById(id);
     }
 
-    @GetMapping("/api/flights/{id}")
-    public Flight findFlight(@PathVariable long id) {
-        return flightService.getFlightById(id);
-    }
-
     @PutMapping("/admin-api/flights")
     @ResponseStatus(HttpStatus.CREATED)
     public Flight addFlight(@RequestBody AddFlightRequest flightRequest) {
@@ -36,6 +33,11 @@ public class FlightController {
     @DeleteMapping("/admin-api/flights/{id}")
     public void deleteFlight(@PathVariable long id) {
         flightService.deleteFlight(id);
+    }
+
+    @GetMapping("/api/flights/{id}")
+    public Flight findFlight(@PathVariable long id) {
+        return flightService.getFlightById(id);
     }
 
     @PostMapping("/api/flights/search")

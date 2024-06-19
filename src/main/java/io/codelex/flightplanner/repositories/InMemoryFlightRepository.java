@@ -12,21 +12,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Repository
-public class InMemoryFlightRepository implements FlightRepository {
+public class InMemoryFlightRepository {
 
     private final List<Flight> flights = new ArrayList<>();
 
-    @Override
     public void addFlight(Flight flight) {
         flights.add(flight);
     }
 
-    @Override
+
     public List<Flight> getAllFlights() {
         return new ArrayList<>(flights);
     }
 
-    @Override
     public Flight getFlightById(long id) {
         return flights.stream()
                 .filter(flight -> flight.getId() == id)
@@ -34,19 +32,16 @@ public class InMemoryFlightRepository implements FlightRepository {
                 .orElse(null);
     }
 
-    @Override
     public void clearFlights() {
         if (!flights.isEmpty()) {
             flights.clear();
         }
     }
 
-    @Override
     public void deleteFlight(long id) {
         flights.removeIf(flight -> flight.getId() == id);
     }
 
-    @Override
     public List<Airport> searchAirports(String search) {
         String lowerCaseSearch = search.trim().toLowerCase();
         List<Airport> airports = new ArrayList<>();
@@ -65,7 +60,6 @@ public class InMemoryFlightRepository implements FlightRepository {
         return airports.stream().distinct().collect(Collectors.toList());
     }
 
-    @Override
     public List<Airport> getAllAirports() {
         return flights.stream()
                 .flatMap(flight -> Stream.of(flight.getFrom(), flight.getTo()))
@@ -73,7 +67,6 @@ public class InMemoryFlightRepository implements FlightRepository {
                 .collect(Collectors.toList());
     }
 
-    @Override
     public PageResult<Flight> searchFlights(SearchFlightsRequest searchFlightsRequest) {
         List<Flight> matchingFlights = flights.stream()
                 .filter(flight -> flight.getFrom().getAirport().equalsIgnoreCase(searchFlightsRequest.getFrom().getAirport())

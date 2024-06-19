@@ -1,9 +1,17 @@
 package io.codelex.flightplanner.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+
+import java.util.Set;
+
+@Entity
 public class Airport {
+    @Id
+    private String airport;
     private String country;
     private String city;
-    private String airport;
 
     public Airport(String country, String city, String airport) {
         this.country = country;
@@ -13,6 +21,10 @@ public class Airport {
 
     public Airport(String airport) {
         this.airport = airport;
+    }
+
+    public Airport() {
+
     }
 
     public String getCountry() {
