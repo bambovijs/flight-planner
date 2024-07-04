@@ -48,8 +48,8 @@ public class FlightController {
 
     @GetMapping("/api/airports")
     @ResponseStatus(HttpStatus.OK)
-    public List<Airport> searchAirports(@RequestParam() String search) {
-        return flightService.searchAirports(search);
+    public List<Airport> searchAirport(@RequestParam() String search) {
+        return flightService.searchAirport(search);
     }
 
     @PostMapping("/testing-api/clear")

@@ -10,10 +10,7 @@ import java.time.format.DateTimeFormatter;
 import static io.codelex.flightplanner.services.DatesFormatter.*;
 
 public class AddFlightRequest {
-    @NotNull
     private Airport from;
-
-
     private Airport to;
     private String carrier;
     private LocalDateTime departureTime;

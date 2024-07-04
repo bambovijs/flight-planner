@@ -98,10 +98,15 @@ public class DatabaseFlightService implements FlightService{
         databaseFlightRepository.deleteById(id);
     }
 
-    @Override
-    public List<Airport> searchAirports(String search) {
-        String trimmedSearch = search.trim().toLowerCase();
-        return databaseAirportRepository.findAirportsBySearchTerm(trimmedSearch);
+//    @Override
+//    public List<Airport> searchAirports(String search) {
+//        String trimmedSearch = search.trim();
+//        return databaseAirportRepository.findAirportsBySearchTerm(trimmedSearch);
+//    }
+
+    public List<Airport> searchAirport(String search) {
+        String formattedSearch= search.trim();
+        return databaseAirportRepository.findAirportsByAirportContainingIgnoreCaseOrCityContainingIgnoreCaseOrCountryContainingIgnoreCase(formattedSearch, formattedSearch, formattedSearch);
     }
 
     @Override

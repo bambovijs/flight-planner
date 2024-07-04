@@ -10,6 +10,5 @@ import java.util.List;
 
 @Repository
 public interface DatabaseAirportRepository extends JpaRepository<Airport, String> {
-    @Query("SELECT a FROM Airport a WHERE LOWER(a.airport) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(a.city) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(a.country) LIKE LOWER(CONCAT('%', :search, '%'))")
-    List<Airport> findAirportsBySearchTerm(@Param("search") String search);
+    List<Airport> findAirportsByAirportContainingIgnoreCaseOrCityContainingIgnoreCaseOrCountryContainingIgnoreCase(String airport,String city,String country);
 }

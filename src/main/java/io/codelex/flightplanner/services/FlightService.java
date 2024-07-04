@@ -15,6 +15,6 @@ public interface FlightService {
     Flight addFlight(AddFlightRequest flightRequest);
 
     void deleteFlight(long id);
-    List<Airport> searchAirports(String search);
+    List<Airport> searchAirport(String search);
     PageResult<Flight> searchFlights(SearchFlightsRequest searchFlightsRequest);
 }

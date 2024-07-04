@@ -90,7 +90,7 @@ public class InMemoryFlightService implements FlightService {
         flightRepository.clearFlights();
     }
     @Override
-    public List<Airport> searchAirports(String search) {
+    public List<Airport> searchAirport(String search) {
         return flightRepository.searchAirports(search);
     }
     @Override
