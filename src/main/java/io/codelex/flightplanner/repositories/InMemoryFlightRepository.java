@@ -69,9 +69,9 @@ public class InMemoryFlightRepository {
 
     public PageResult<Flight> searchFlights(SearchFlightsRequest searchFlightsRequest) {
         List<Flight> matchingFlights = flights.stream()
-                .filter(flight -> flight.getFrom().getAirport().equalsIgnoreCase(searchFlightsRequest.getFrom().getAirport())
-                        && flight.getTo().getAirport().equalsIgnoreCase(searchFlightsRequest.getTo().getAirport())
-                        && flight.getDepartureTime().toString().startsWith(searchFlightsRequest.getDepartureDate()))
+                .filter(flight -> flight.getFrom().getAirport().equalsIgnoreCase(searchFlightsRequest.getFrom())
+                        && flight.getTo().getAirport().equalsIgnoreCase(searchFlightsRequest.getTo())
+                        && flight.getDepartureTime().toString().startsWith(searchFlightsRequest.getDepartureDate().toString()))
                 .collect(Collectors.toList());
 
         return new PageResult<Flight>(0, matchingFlights.size(), matchingFlights);

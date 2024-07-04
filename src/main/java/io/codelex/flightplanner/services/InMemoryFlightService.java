@@ -6,7 +6,6 @@ import io.codelex.flightplanner.controllers.SearchFlightsRequest;
 import io.codelex.flightplanner.model.Airport;
 import io.codelex.flightplanner.model.PageResult;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import io.codelex.flightplanner.model.Flight;
 import io.codelex.flightplanner.repositories.InMemoryFlightRepository;
 import org.springframework.web.server.ResponseStatusException;
@@ -102,7 +101,7 @@ public class InMemoryFlightService implements FlightService {
 
     protected void validateSearchRequest(SearchFlightsRequest request) {
         if (request.getFrom() == null || request.getTo() == null || request.getDepartureDate() == null ||
-                request.getFrom().toString().isBlank()|| request.getTo().toString().isBlank()|| request.getDepartureDate().isBlank() || request.getTo().getAirport().equals(request.getFrom().getAirport())) {
+                request.getFrom().isBlank()|| request.getTo().isBlank() || request.getTo().equals(request.getFrom())) {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid search parameters");
         }

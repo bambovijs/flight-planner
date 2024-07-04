@@ -10,6 +10,9 @@ import io.codelex.flightplanner.repositories.DatabaseFlightRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseFlightService implements FlightService{
@@ -46,7 +49,7 @@ public class DatabaseFlightService implements FlightService{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        if (isDuplicateFlight(flightRequest)) {
+        if (isDuplicateFlight(flightRequest) ){
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
 
@@ -77,7 +80,7 @@ public class DatabaseFlightService implements FlightService{
     private void validateAirport(Airport airport){
         if (airport.getCountry() == null || airport.getCity() == null || airport.getAirport() == null ||
                 airport.getCountry().isBlank() || airport.getCity().isBlank()
-                || airport.getAirport().trim().isEmpty()) {
+                || airport.getAirport().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
@@ -97,13 +100,30 @@ public class DatabaseFlightService implements FlightService{
 
     @Override
     public List<Airport> searchAirports(String search) {
-        System.out.println("search: " + search);
-        System.out.println("databaseAirportRepository: " + databaseAirportRepository.searchAirports(search));
-        return databaseAirportRepository.searchAirports(search);
+        String trimmedSearch = search.trim().toLowerCase();
+        return databaseAirportRepository.findAirportsBySearchTerm(trimmedSearch);
     }
 
     @Override
     public PageResult<Flight> searchFlights(SearchFlightsRequest searchFlightsRequest) {
-        return null;
+        PageResult<Flight> result = new PageResult<>(0,0,new ArrayList<Flight>());
+
+        if (searchFlightsRequest.getFrom() == null || searchFlightsRequest.getTo() == null ||
+                searchFlightsRequest.getDepartureDate() == null || searchFlightsRequest.getFrom().equals(searchFlightsRequest.getTo())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        LocalDateTime startOfDay = searchFlightsRequest.getDepartureDate();
+        LocalDateTime endOfDay = startOfDay.plusDays(1).minusNanos(1);
+
+        List<Flight> flights = databaseFlightRepository.findFlightsByFromAirportAndToAirportAndDepartureTime(searchFlightsRequest.getFrom(), searchFlightsRequest.getTo(), startOfDay, endOfDay);
+
+        System.out.println(flights);
+
+        result.setTotalItems(flights.size());
+        result.setItems(flights);
+        result.setPage(flights.size()/5);
+
+        return result;
     }
 }
