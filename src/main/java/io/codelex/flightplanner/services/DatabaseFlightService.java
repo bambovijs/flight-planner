@@ -39,6 +39,7 @@ public class DatabaseFlightService implements FlightService{
     @Override
     public void clearFlights() {
         databaseFlightRepository.deleteAll();
+        databaseAirportRepository.deleteAll();
     }
 
     @Override
