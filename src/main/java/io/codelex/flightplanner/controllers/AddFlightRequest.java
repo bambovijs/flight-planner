@@ -1,9 +1,13 @@
 package io.codelex.flightplanner.controllers;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.codelex.flightplanner.model.Airport;
+import org.antlr.v4.runtime.misc.NotNull;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import static io.codelex.flightplanner.services.DatesFormatter.*;
 
 public class AddFlightRequest {
     private Airport from;
@@ -14,16 +18,12 @@ public class AddFlightRequest {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public AddFlightRequest(Airport from, Airport to, String carrier, String departureTime, String arrivalTime) {
+    public AddFlightRequest(Airport from, Airport to, String carrier, @JsonFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime departureTime, @JsonFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime arrivalTime) {
         this.from = from;
         this.to = to;
         this.carrier = carrier;
-        this.departureTime = convertToDateTime(departureTime);
-        this.arrivalTime = convertToDateTime(arrivalTime);
-    }
-
-    private LocalDateTime convertToDateTime(String dateTime) {
-        return LocalDateTime.parse(dateTime, FORMATTER);
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
     }
 
     public Airport getFrom() {

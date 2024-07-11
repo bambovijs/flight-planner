@@ -4,12 +4,21 @@ import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+@Entity
 public class Flight {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "flight_id")
     private Long id;
+    @ManyToOne
+    @JoinColumn(name = "from_airport", nullable = false)
     private Airport from;
+    @ManyToOne
+    @JoinColumn(name = "to_airport", nullable = false)
     private Airport to;
     private String carrier;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -26,6 +35,10 @@ public class Flight {
         this.carrier = carrier;
         this.departureTime = departureTime;
         this.arrivalTime = arrivalTime;
+    }
+
+    public Flight() {
+
     }
 
     public Long getId() {

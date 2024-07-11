@@ -2,10 +2,12 @@ package io.codelex.flightplanner.controllers;
 
 import io.codelex.flightplanner.model.Airport;
 import io.codelex.flightplanner.model.PageResult;
+import io.codelex.flightplanner.services.FlightService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import io.codelex.flightplanner.model.Flight;
-import io.codelex.flightplanner.services.FlightService;
+import io.codelex.flightplanner.services.InMemoryFlightService;
+
 import java.util.List;
 
 @RestController
@@ -22,11 +24,6 @@ public class FlightController {
         return flightService.getFlightById(id);
     }
 
-    @GetMapping("/api/flights/{id}")
-    public Flight findFlight(@PathVariable long id) {
-        return flightService.getFlightById(id);
-    }
-
     @PutMapping("/admin-api/flights")
     @ResponseStatus(HttpStatus.CREATED)
     public Flight addFlight(@RequestBody AddFlightRequest flightRequest) {
@@ -38,6 +35,11 @@ public class FlightController {
         flightService.deleteFlight(id);
     }
 
+    @GetMapping("/api/flights/{id}")
+    public Flight findFlight(@PathVariable long id) {
+        return flightService.getFlightById(id);
+    }
+
     @PostMapping("/api/flights/search")
     @ResponseStatus(HttpStatus.OK)
     public PageResult<Flight> searchFlights(@RequestBody SearchFlightsRequest searchFlightsRequest) {
@@ -46,8 +48,8 @@ public class FlightController {
 
     @GetMapping("/api/airports")
     @ResponseStatus(HttpStatus.OK)
-    public List<Airport> searchAirports(@RequestParam() String search) {
-        return flightService.searchAirports(search);
+    public List<Airport> searchAirport(@RequestParam() String search) {
+        return flightService.searchAirport(search);
     }
 
     @PostMapping("/testing-api/clear")
