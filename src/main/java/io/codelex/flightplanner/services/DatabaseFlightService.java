@@ -65,13 +65,7 @@ public class DatabaseFlightService implements FlightService{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        Airport from_airport = new Airport(flightRequest.getFrom().getCountry(), flightRequest.getFrom().getCity(), flightRequest.getFrom().getAirport());
-        databaseAirportRepository.save(from_airport);
-
-        Airport to_airport = new Airport(flightRequest.getTo().getCountry(), flightRequest.getTo().getCity(), flightRequest.getTo().getAirport());
-        databaseAirportRepository.save(to_airport);
-
-        Flight flight = new Flight(from_airport, to_airport, flightRequest.getCarrier(),
+        Flight flight = new Flight(databaseAirportRepository.findOrCreate(flightRequest.getFrom().getAirport(), flightRequest.getFrom().getCity(), flightRequest.getFrom().getCountry()), databaseAirportRepository.findOrCreate(flightRequest.getTo().getAirport(), flightRequest.getTo().getCity(), flightRequest.getTo().getCountry()), flightRequest.getCarrier(),
                 flightRequest.getDepartureTime(), flightRequest.getArrivalTime());
         databaseFlightRepository.save(flight);
 
@@ -99,12 +93,6 @@ public class DatabaseFlightService implements FlightService{
         databaseFlightRepository.deleteById(id);
     }
 
-//    @Override
-//    public List<Airport> searchAirports(String search) {
-//        String trimmedSearch = search.trim();
-//        return databaseAirportRepository.findAirportsBySearchTerm(trimmedSearch);
-//    }
-
     public List<Airport> searchAirport(String search) {
         String formattedSearch= search.trim();
         return databaseAirportRepository.findAirportsByAirportContainingIgnoreCaseOrCityContainingIgnoreCaseOrCountryContainingIgnoreCase(formattedSearch, formattedSearch, formattedSearch);
@@ -123,8 +111,6 @@ public class DatabaseFlightService implements FlightService{
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusNanos(1);
 
         List<Flight> flights = databaseFlightRepository.findFlightsByFromAirportAndToAirportAndDepartureTime(searchFlightsRequest.getFrom(), searchFlightsRequest.getTo(), startOfDay, endOfDay);
-
-        System.out.println(flights);
 
         result.setTotalItems(flights.size());
         result.setItems(flights);
